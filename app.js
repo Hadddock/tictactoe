@@ -22,6 +22,13 @@ const gameBoard = (() => {
   return { reset, getBoard, placePiece };
 })();
 
+//player factory
+const Player = (playerName, playerMarker) => {
+  const marker = playerMarker;
+  const name = playerName;
+  return { marker, name };
+};
+
 //game module
 const game = (() => {
   const playerOne = Player("Player One", "X");
