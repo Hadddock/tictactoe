@@ -29,14 +29,23 @@ const Player = (playerName, playerMarker) => {
   const name = playerName;
   return { marker, name };
 };
+
 const playerTurn = document.getElementById("playerTurn");
 
 const game = (() => {
-  let playerOne = Player("Player One", "X");
-  let playerTwo = Player("Player Two", "O");
+  const playerOne = Player("Player One", "X");
+  const playerTwo = Player("Player Two", "O");
   let winner;
   let currentPlayer = playerOne;
   const board = gameBoard;
+
+  const getCurrentPlayer = () =>
+    Player(currentPlayer.name, currentPlayer.marker);
+  const getWinner = () => winner.name;
+  const setPlayerNames = (playerOneName, playerTwoName) => {
+    playerOne.name = playerOneName;
+    playerTwo.name = playerTwoName;
+  };
 
   const checkThree = (positionOne, positionTwo, positionThree) => {
     const currentBoard = board.getBoard();
@@ -45,11 +54,6 @@ const game = (() => {
       currentBoard[positionOne] === currentBoard[positionTwo] &&
       currentBoard[positionTwo] === currentBoard[positionThree]
     );
-  };
-
-  const setPlayerNames = (playerOneName, playerTwoName) => {
-    playerOne.name = playerOneName;
-    playerTwo.name = playerTwoName;
   };
 
   const reset = () => {
@@ -79,21 +83,9 @@ const game = (() => {
     return false;
   };
 
-  const getCurrentPlayer = () =>
-    Player(currentPlayer.name, currentPlayer.marker);
-
-  const getWinner = () => winner.name;
-
   const playRound = (position) => {
     board.placePiece(position, currentPlayer.marker);
-
-    if (gameFinished()) {
-      if (winner === undefined) {
-        console.log("Tie Game!");
-      } else {
-        console.log(`${currentPlayer.name} Wins!`);
-      }
-    } else {
+    if (!gameFinished()) {
       currentPlayer = currentPlayer === playerTwo ? playerOne : playerTwo;
     }
   };
@@ -111,50 +103,54 @@ const game = (() => {
 const htmlBoard = document.getElementById("board");
 const resetButton = document.getElementById("reset");
 const form = document.getElementById("nameForm");
-const squares = [];
 
-function callPlayRound(e) {
-  if (e.target.textContent === "" && !game.gameFinished()) {
-    e.target.textContent = game.getCurrentPlayer().marker;
-    game.playRound(e.target.id);
+const styleController = (() => {
+  const squares = [];
+  const resetBoard = () => {
+    squares.forEach((square) => {
+      square.textContent = "";
+      playerTurn.textContent = `${game.getCurrentPlayer().name}'s Turn!`;
+    });
+  };
+
+  const renamePlayers = (e) => {
+    if (e.preventDefault) e.preventDefault();
+    let playerOneName = document.getElementById("playerOneName").value;
+    let playerTwoName = document.getElementById("playerTwoName").value;
+    playerOneName = playerOneName === "" ? "Player One" : playerOneName;
+    playerTwoName = playerTwoName === "" ? "Player Two" : playerTwoName;
+    game.setPlayerNames(playerOneName, playerTwoName);
     playerTurn.textContent = `${game.getCurrentPlayer().name}'s Turn!`;
-    if (game.gameFinished()) {
-      if (game.getWinner() === undefined) {
-        playerTurn.textContent = `Tie game!`;
-      } else {
-        playerTurn.textContent = `${game.getWinner()} Wins!`;
+    return false;
+  };
+
+  const callPlayRound = (e) => {
+    if (e.target.textContent === "" && !game.gameFinished()) {
+      e.target.textContent = game.getCurrentPlayer().marker;
+      game.playRound(e.target.id);
+      playerTurn.textContent = `${game.getCurrentPlayer().name}'s Turn!`;
+      if (game.gameFinished()) {
+        if (game.getWinner() === undefined) {
+          playerTurn.textContent = `Tie game!`;
+        } else {
+          playerTurn.textContent = `${game.getWinner()} Wins!`;
+        }
       }
     }
-  }
-}
+  };
+  return { resetBoard, squares, callPlayRound, renamePlayers };
+})();
+
+form.addEventListener("submit", styleController.renamePlayers);
+
+resetButton.addEventListener("click", game.reset);
+resetButton.addEventListener("click", styleController.resetBoard);
 
 for (let i = 0; i < 9; i += 1) {
   const button = document.createElement("button");
   button.id = i;
-  button.addEventListener("click", callPlayRound);
-  squares.push(button);
+  button.addEventListener("click", styleController.callPlayRound);
+  styleController.squares.push(button);
   htmlBoard.appendChild(button);
 }
-
-function resetBoard() {
-  squares.forEach((square) => {
-    square.textContent = "";
-    playerTurn.textContent = `${game.getCurrentPlayer().name}'s Turn!`;
-  });
-}
-
-function startGameWithNewPlayers(e) {
-  if (e.preventDefault) e.preventDefault();
-  const playerOneName = document.getElementById("playerOneName").value;
-  const playerTwoName = document.getElementById("playerTwoName").value;
-  game.setPlayerNames(playerOneName, playerTwoName);
-  game.reset();
-  resetBoard();
-  return false;
-}
-
-resetBoard();
-
-form.addEventListener("submit", startGameWithNewPlayers);
-resetButton.addEventListener("click", game.reset);
-resetButton.addEventListener("click", resetBoard);
+styleController.resetBoard();
