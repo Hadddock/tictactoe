@@ -49,6 +49,11 @@ const game = (() => {
     );
   };
 
+  const setPlayerNames = (playerOneName, playerTwoName) => {
+    playerOne.name = playerOneName;
+    playerTwo.name = playerTwoName;
+  };
+
   const reset = () => {
     winner = undefined;
     board.reset();
@@ -84,33 +89,6 @@ const game = (() => {
     return response;
   };
 
-  // const play = () => {
-  //   console.log(board.displayBoard());
-  //   while (!gameFinished()) {
-  //     let playerPlaced = false;
-  //     while (!playerPlaced) {
-  //       playerPlaced = board.placePiece(getPosition(), playerOne.marker);
-  //     }
-
-  //     if (gameFinished()) {
-  //       break;
-  //     }
-  //     console.log(board.displayBoard());
-
-  //     playerPlaced = false;
-  //     while (!playerPlaced) {
-  //       playerPlaced = board.placePiece(getPosition(), playerTwo.marker);
-  //     }
-  //     console.log(board.displayBoard());
-  //   }
-  //   console.log(board.displayBoard());
-  //   if (winner === undefined) {
-  //     console.log("Tie Game!");
-  //   } else {
-  //     console.log(`${winner.name} Wins!`);
-  //   }
-  // };
-
   const getCurrentPlayer = () =>
     Player(currentPlayer.name, currentPlayer.marker);
 
@@ -127,7 +105,7 @@ const game = (() => {
     currentPlayer = currentPlayer === playerTwo ? playerOne : playerTwo;
   };
 
-  return { playRound, getCurrentPlayer, gameFinished, reset };
+  return { playRound, getCurrentPlayer, gameFinished, reset, setPlayerNames };
 })();
 
 const htmlBoard = document.getElementById("board");
@@ -156,5 +134,18 @@ function resetBoard() {
   });
 }
 
+function startGameWithNewPlayers(e) {
+  if (e.preventDefault) e.preventDefault();
+  const playerOneName = document.getElementById("playerOneName");
+  const playerTwoName = document.getElementById("playerTwoName");
+
+  game.reset();
+  resetBoard();
+  game.setPlayerNames(playerOneName, playerTwoName);
+  return false;
+}
+
+const form = document.getElementById("nameForm");
+form.addEventListener("submit", startGameWithNewPlayers);
 resetButton.addEventListener("click", game.reset);
 resetButton.addEventListener("click", resetBoard);
