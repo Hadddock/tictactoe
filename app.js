@@ -82,14 +82,6 @@ const game = (() => {
     return false;
   };
 
-  const getPosition = () => {
-    let response = NaN;
-    while (Number.isNaN(response) || response < 0 || response > 8) {
-      response = parseInt(prompt("Enter a position"), 10);
-    }
-    return response;
-  };
-
   const getCurrentPlayer = () =>
     Player(currentPlayer.name, currentPlayer.marker);
 
