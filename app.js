@@ -1,5 +1,4 @@
 /* eslint-disable prefer-destructuring */
-//gameBoard module
 const gameBoard = (() => {
   let board = ["", "", "", "", "", "", "", "", ""];
   const reset = () => {
@@ -25,7 +24,6 @@ const gameBoard = (() => {
   return { reset, getBoard, placePiece, displayBoard };
 })();
 
-//player factory
 const Player = (playerName, playerMarker) => {
   const marker = playerMarker;
   const name = playerName;
@@ -33,7 +31,6 @@ const Player = (playerName, playerMarker) => {
 };
 const playerTurn = document.getElementById("playerTurn");
 
-//game module
 const game = (() => {
   let playerOne = Player("Player One", "X");
   let playerTwo = Player("Player Two", "O");
@@ -112,8 +109,9 @@ const game = (() => {
 })();
 
 const htmlBoard = document.getElementById("board");
-
 const resetButton = document.getElementById("reset");
+const form = document.getElementById("nameForm");
+const squares = [];
 
 function callPlayRound(e) {
   if (e.target.textContent === "" && !game.gameFinished()) {
@@ -129,7 +127,6 @@ function callPlayRound(e) {
     }
   }
 }
-const squares = [];
 
 for (let i = 0; i < 9; i += 1) {
   const button = document.createElement("button");
@@ -153,12 +150,11 @@ function startGameWithNewPlayers(e) {
   game.setPlayerNames(playerOneName, playerTwoName);
   game.reset();
   resetBoard();
-
   return false;
 }
 
 resetBoard();
-const form = document.getElementById("nameForm");
+
 form.addEventListener("submit", startGameWithNewPlayers);
 resetButton.addEventListener("click", game.reset);
 resetButton.addEventListener("click", resetBoard);
