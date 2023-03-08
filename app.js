@@ -31,6 +31,7 @@ const Player = (playerName, playerMarker) => {
   const name = playerName;
   return { marker, name };
 };
+const playerTurn = document.getElementById("playerTurn");
 
 //game module
 const game = (() => {
@@ -92,6 +93,8 @@ const game = (() => {
   const getCurrentPlayer = () =>
     Player(currentPlayer.name, currentPlayer.marker);
 
+  const getWinner = () => winner.name;
+
   const playRound = (position) => {
     board.placePiece(position, currentPlayer.marker);
 
@@ -101,11 +104,19 @@ const game = (() => {
       } else {
         console.log(`${currentPlayer.name} Wins!`);
       }
+    } else {
+      currentPlayer = currentPlayer === playerTwo ? playerOne : playerTwo;
     }
-    currentPlayer = currentPlayer === playerTwo ? playerOne : playerTwo;
   };
 
-  return { playRound, getCurrentPlayer, gameFinished, reset, setPlayerNames };
+  return {
+    playRound,
+    getCurrentPlayer,
+    gameFinished,
+    reset,
+    setPlayerNames,
+    getWinner,
+  };
 })();
 
 const htmlBoard = document.getElementById("board");
@@ -116,6 +127,14 @@ function callPlayRound(e) {
   if (e.target.textContent === "" && !game.gameFinished()) {
     e.target.textContent = game.getCurrentPlayer().marker;
     game.playRound(e.target.id);
+    playerTurn.textContent = `${game.getCurrentPlayer().name}'s Turn!`;
+    if (game.gameFinished()) {
+      if (game.getWinner() === undefined) {
+        playerTurn.textContent = `Tie game!`;
+      } else {
+        playerTurn.textContent = `${game.getWinner()} Wins!`;
+      }
+    }
   }
 }
 const squares = [];
@@ -131,20 +150,22 @@ for (let i = 0; i < 9; i += 1) {
 function resetBoard() {
   squares.forEach((square) => {
     square.textContent = "";
+    playerTurn.textContent = `${game.getCurrentPlayer().name}'s Turn!`;
   });
 }
 
 function startGameWithNewPlayers(e) {
   if (e.preventDefault) e.preventDefault();
-  const playerOneName = document.getElementById("playerOneName");
-  const playerTwoName = document.getElementById("playerTwoName");
-
+  const playerOneName = document.getElementById("playerOneName").value;
+  const playerTwoName = document.getElementById("playerTwoName").value;
+  game.setPlayerNames(playerOneName, playerTwoName);
   game.reset();
   resetBoard();
-  game.setPlayerNames(playerOneName, playerTwoName);
+
   return false;
 }
 
+resetBoard();
 const form = document.getElementById("nameForm");
 form.addEventListener("submit", startGameWithNewPlayers);
 resetButton.addEventListener("click", game.reset);
