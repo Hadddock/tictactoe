@@ -12,11 +12,12 @@
   border-color: black;
 }
 
-#board div {
-  color: rgb(185, 185, 185);
+#board button {
+  color: rgb(255, 21, 21);
+  font-size: 50px;
   background-color: rgb(189, 189, 189);
-  width: 100%;
-  height: 100%;
+  width: 200px;
+  height: 200px;
   align-self: center;
   justify-self: center;
   text-align: center;

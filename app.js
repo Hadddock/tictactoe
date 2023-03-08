@@ -1,16 +1,16 @@
 /* eslint-disable prefer-destructuring */
 //gameBoard module
 const gameBoard = (() => {
-  let board = [" ", " ", " ", " ", " ", " ", " ", " ", " "];
+  let board = ["", "", "", "", "", "", "", "", ""];
   const reset = () => {
-    board = [" ", " ", " ", " ", " ", " ", " ", " ", " "];
+    board = ["", "", "", "", "", "", "", "", ""];
   };
   const placePiece = (position, marker) => {
     if (
-      marker !== " " &&
+      marker !== "" &&
       position < board.length &&
       position >= 0 &&
-      board[position] === " "
+      board[position] === ""
     ) {
       board[position] = marker;
       return true;
@@ -37,12 +37,13 @@ const game = (() => {
   let playerOne = Player("Player One", "X");
   let playerTwo = Player("Player Two", "O");
   let winner;
+  let currentPlayer = playerOne;
   const board = gameBoard;
 
   const checkThree = (positionOne, positionTwo, positionThree) => {
     const currentBoard = board.getBoard();
     return (
-      currentBoard[positionOne] !== " " &&
+      currentBoard[positionOne] !== "" &&
       currentBoard[positionOne] === currentBoard[positionTwo] &&
       currentBoard[positionTwo] === currentBoard[positionThree]
     );
@@ -62,7 +63,7 @@ const game = (() => {
       winningPlayerMarker = currentBoard[4];
     } else if (checkThree(6, 7, 8) || checkThree(2, 5, 8)) {
       winningPlayerMarker = currentBoard[8];
-    } else if (!currentBoard.includes(" ")) {
+    } else if (!currentBoard.includes("")) {
       return true;
     } else {
       return false;
@@ -108,7 +109,38 @@ const game = (() => {
       console.log(`${winner.name} Wins!`);
     }
   };
-  return { play };
+
+  const playRound = (position) => {
+    board.placePiece(position, currentPlayer.marker);
+    currentPlayer = currentPlayer === playerOne ? playerTwo : playerOne;
+    if (gameFinished()) {
+      if (winner === undefined) {
+        console.log("Tie Game!");
+      } else {
+        console.log(`${winner.name} Wins!`);
+      }
+    }
+  };
+
+  const getCurrentPlayer = () =>
+    Player(currentPlayer.name, currentPlayer.marker);
+
+  return { playRound, getCurrentPlayer, gameFinished };
 })();
 
-//game.play();
+const htmlBoard = document.getElementById("board");
+
+function callPlayRound(e) {
+  if (e.target.textContent === "" && !game.gameFinished()) {
+    game.playRound(e.target.id);
+    console.log("blank space touched");
+    e.target.textContent = game.getCurrentPlayer().marker;
+  }
+}
+
+for (let i = 0; i < 9; i += 1) {
+  const button = document.createElement("button");
+  button.id = i;
+  button.addEventListener("click", callPlayRound);
+  htmlBoard.appendChild(button);
+}
